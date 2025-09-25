@@ -1,37 +1,74 @@
-const container = document.getElementById('container');
-const registerBtn = document.getElementById('register');
-const loginBtn = document.getElementById('login');
+define( [
+	"../core",
+	"../var/document",
+	"../ajax"
+], function( jQuery, document ) {
 
-// Alternar entre as telas de login e registro
-registerBtn.addEventListener('click', () => {
-    container.classList.add("active");
-});
+"use strict";
 
-loginBtn.addEventListener('click', () => {
-    container.classList.remove("active");
-});
+// Prevent auto-execution of scripts when no explicit dataType was provided (See gh-2432)
+jQuery.ajaxPrefilter( function( s ) {
+	if ( s.crossDomain ) {
+		s.contents.script = false;
+	}
+} );
 
-// Validar email com domínio específico
-function isValidEmail(email) {
-    const regex = /^[a-zA-Z0-9._%+-]+@etec\.sp\.gov\.br$/;
-    return regex.test(email);
-}
+// Install script dataType
+jQuery.ajaxSetup( {
+	accepts: {
+		script: "text/javascript, application/javascript, " +
+			"application/ecmascript, application/x-ecmascript"
+	},
+	contents: {
+		script: /\b(?:java|ecma)script\b/
+	},
+	converters: {
+		"text script": function( text ) {
+			jQuery.globalEval( text );
+			return text;
+		}
+	}
+} );
 
-// Validar formulário de registro
-document.getElementById('signup-form').addEventListener('submit', (e) => {
-    const email = document.getElementById('signup-email').value;
-    if (!isValidEmail(email)) {
-        e.preventDefault(); // Impede o envio do formulário
-        alert('O e-mail deve ser do domínio @etec.sp.gov.br');
-    }
-});
+// Handle cache's special case and crossDomain
+jQuery.ajaxPrefilter( "script", function( s ) {
+	if ( s.cache === undefined ) {
+		s.cache = false;
+	}
+	if ( s.crossDomain ) {
+		s.type = "GET";
+	}
+} );
 
-// Validar formulário de login
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    const email = document.getElementById('login-email').value;
-    if (!isValidEmail(email)) {
-        e.preventDefault(); // Impede o envio do formulário
-        alert('O e-mail deve ser do domínio @etec.sp.gov.br');
-    }
-});
+// Bind script tag hack transport
+jQuery.ajaxTransport( "script", function( s ) {
 
+	// This transport only deals with cross domain or forced-by-attrs requests
+	if ( s.crossDomain || s.scriptAttrs ) {
+		var script, callback;
+		return {
+			send: function( _, complete ) {
+				script = jQuery( "<script>" )
+					.attr( s.scriptAttrs || {} )
+					.prop( { charset: s.scriptCharset, src: s.url } )
+					.on( "load error", callback = function( evt ) {
+						script.remove();
+						callback = null;
+						if ( evt ) {
+							complete( evt.type === "error" ? 404 : 200, evt.type );
+						}
+					} );
+
+				// Use native DOM manipulation to avoid our domManip AJAX trickery
+				document.head.appendChild( script[ 0 ] );
+			},
+			abort: function() {
+				if ( callback ) {
+					callback();
+				}
+			}
+		};
+	}
+} );
+
+} );
