@@ -1,386 +1,295 @@
 <?php
 session_start();
-
-// Verifica a validade do token da sessão
+include '../../../Controller/conexao.php'; 
+// Verifica se o token da sessão está presente
 if (!isset($_SESSION['token'])) {
-    // Se o token não estiver presente, redireciona para a página de login
-    header('Location: ../login.html');
+    header('Location: ../../login.html');
     exit;
 }
-
 // Divide o token em sua parte principal e tipo (admin ou aluno)
 list($token, $type) = explode('_', $_SESSION['token'], 2);
 
-// Verifica se o tipo do token é 'aluno'
-if ($type !== 'aluno') {
-    // Se o tipo não for 'aluno', redireciona para a página de login
-    header('Location: ../login.html');
+// Verifica se o tipo do token é 'admin'
+if ($type !== 'admin') {
+    header('Location: ../../login.html');
     exit;
 }
-$user = $_SESSION['user'];
+
+$sql = "SELECT codAluno, nome, email FROM Aluno";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$alunos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$sql = "SELECT codChamado FROM Chamado";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$chamados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 
-    <head>
-        <meta charset="utf-8">
-        <title>CMTEC - ABRA SEU CHAMADO AQUI</title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
-        <link rel="icon" href="img/c.png" type="image/png">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CMTEC - ADMIN</title>
+  <link rel="stylesheet" href="../assets/css/styles.min.css" />
+</head>
 
-
-        <!-- Google Web Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
-
-        <!-- Icon Font Stylesheet -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-        <!-- Libraries Stylesheet -->
-        <link rel="stylesheet" href="lib/animate/animate.min.css"/>
-        <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
-
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Template Stylesheet -->
-        <link href="css/style.css" rel="stylesheet">
-    </head>
-	<style>
-        .nav-link:hover,
-        .footer-item a:hover {
-            color: #3E5FFE; /* Azul para links */
-            text-decoration: underline; /* Adiciona um sublinhado para melhor visualização */
-        }
-
-        /* Botões */
-    
-        .text-primary {
-            color: #3E5FFE !important;
-        }
-
-        .btn-primary {
-            background-color: #3E5FFE;
-            border-color: #3E5FFE;
-        }
-
-        .navbar-light .navbar-brand {
-            color: #3E5FFE;
-        }
-
-        .navbar-nav .nav-link.active {
-            color: #3E5FFE;
-        }
-
-        .footer-item h4 {
-            color: #3E5FFE;
-        }
-
-        .footer-item a {
-            color: #3E5FFE;
-        }
-
-        .btn-light {
-            background-color: #3E5FFE;
-            color: #fff;
-        }
-
-        .btn-light:hover {
-            background-color: #3457D0;
-            color: #fff;
-        }
-
-        :root {
-            --bs-primary: #3E5FFE; /* Azul */
-            --bs-secondary: #F0F0F0; /* Exemplo de cor secundária */
-            --bs-dark: #000000; /* Exemplo de cor escura */
-            --bs-light: #FFFFFF; /* Exemplo de cor clara */
-            --bs-white: #FFFFFF; /* Branco */
-            --bs-body: #6c757d; /* Exemplo de cor do texto */
-        }
-
-        .footer .footer-item .bg-primary {
-            background-color: #000000; /* Fundo preto */
-            color: #ffffff; /* Texto branco */
-        }
-
-        .footer .footer-item .bg-primary:hover {
-            background-color: #333333; /* Fundo preto mais escuro ao passar o mouse */
-            color: #ffffff; /* Texto branco ao passar o mouse */
-        }
-
-        /* Estilo do footer */
-        .footer {
-            background-color: #212529; /* Cor de fundo escura */
-            color: #ffffff; /* Cor do texto branco */
-        }
-
-        .footer .footer-item h4,
-        .footer .footer-item a {
-            color: #ffffff; /* Cor do texto branco */
-        }
-
-        .footer .footer-item a:hover {
-            color: #3E5FFE; /* Azul para links ao passar o mouse */
-        }
-
-        /* Estilo do copyright */
-        .copyright {
-            background-color: #000000; /* Cor de fundo preta */
-            color: #ffffff; /* Cor do texto branca */
-        }
-
-        .copyright a {
-            color: #ffffff; /* Cor do texto branca para links */
-        }
-
-        .copyright a:hover {
-            color: #3E5FFE; /* Azul para links ao passar o mouse */
-        }
-
-
-    </style>
-
-    <body>
-    <div class="container-fluid topbar bg-light px-5 d-none d-lg-block">
-            <div class="row gx-0 align-items-center">
-                <div class="col-lg-8 text-center text-lg-start mb-2 mb-lg-0">
-                    <div class="d-flex flex-wrap">
-                        <a href="mailto:example@gmail.com" class="text-muted small me-0"><i class="fas fa-envelope text-primary me-2"></i><?php echo htmlspecialchars($user['email']); ?></a>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center text-lg-end">
-                    <div class="d-inline-flex align-items-center" style="height: 45px;">
-                       
-                    </div>
-                </div>
-            </div>
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between" >
+          <a href="index.php" class="text-nowrap logo-img" >
+            <h2>CMTEC ADMIN</h2>
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
         </div>
-        <!-- Navbar & Hero Start -->
-        <div class="container-fluid position-relative p-0">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="" class="navbar-brand p-0">
-                    <h1 class="text-primary">CMTEC</h1>
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
+        <!-- Sidebar navigation-->
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+          <ul id="sidebarnav">
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Home</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="index.php" aria-expanded="false">
+                <iconify-icon icon="solar:widget-add-line-duotone"></iconify-icon>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <span class="sidebar-divider lg"></span>
+            </li>
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Componentes</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="chamados.php" aria-expanded="false">
+                <iconify-icon icon="solar:layers-minimalistic-bold-duotone"></iconify-icon>
+                <span class="hide-menu">Chamados</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="usuarios.php" aria-expanded="false">
+                <iconify-icon icon="solar:danger-circle-line-duotone"></iconify-icon>
+                <span class="hide-menu">Usuarios</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="ambientes.php" aria-expanded="false">
+                <iconify-icon icon="solar:bookmark-square-minimalistic-line-duotone"></iconify-icon>
+                <span class="hide-menu">Ambientes</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="estatisticas.php" aria-expanded="false">
+                <iconify-icon icon="solar:file-text-line-duotone"></iconify-icon>
+                <span class="hide-menu">Estatisticas</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="FAQ.php" aria-expanded="false">
+                <iconify-icon icon="solar:text-field-focus-line-duotone"></iconify-icon>
+                <span class="hide-menu">FAQs</span>
+              </a>
+            </li>
+            <li>
+              <span class="sidebar-divider lg"></span>
+            </li>           
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="../../deslogar.php" aria-expanded="false">
+                <iconify-icon icon="solar:login-3-line-duotone"></iconify-icon>
+                <span class="hide-menu">Sair</span>
+              </a>
+            </li>         
+                    
+        </nav>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      <header class="app-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <ul class="navbar-nav">
+            <li class="nav-item d-block d-xl-none">
+              <a class="nav-link sidebartoggler " id="headerCollapse" href="javascript:void(0)">
+                <i class="ti ti-menu-2"></i>
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+            <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+              <li class="nav-item dropdown">
+                <a class="nav-link " href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  <img src="../assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto py-0">
-                        <a href="index.html" class="nav-item nav-link active" style="color: #000; text-decoration: none; background-color: transparent;" 
-       onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" 
-       onmouseout="this.style.color='#000'; this.style.backgroundColor='transparent';">Home</a>
-       <a href="chamados.php" class="nav-item nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-       onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" 
-       onmouseout="this.style.color='#000'; this.style.backgroundColor='transparent';">Chamados</a>
-                        <a href="FAQ.php" class="nav-item nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-       onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" 
-       onmouseout="this.style.color='#000'; this.style.backgroundColor='transparent';">FAQ</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-       onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" 
-       onmouseout="this.style.color='#000'; this.style.backgroundColor='transparent';" data-bs-toggle="dropdown">
-                                <span class="dropdown-toggle" >Paginas</span>
-                            </a>
-                            <div class="dropdown-menu m-0">
-                                <a href="chamados.php" class="dropdown-item">Chamados</a>
-                                <a href="perfil.php" class="dropdown-item">Perfil</a>
-                                <a href="FAQ.php" class="dropdown-item">FAQs</a>
-                                <a href="../deslogar.php" class="dropdown-item active" style="background-color:#d9d9d9; color:#000;">Sair</a>
-                            </div>
-                        </div>
-                    </div>
-    
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                  <div class="message-body">
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-user fs-6"></i>
+                      <p class="mb-0 fs-3">Meu perfil</p>
+                    </a>
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-list-check fs-6"></i>
+                      <p class="mb-0 fs-3">Mensagens</p>
+                    </a>
+                    <a href="../../deslogar.php" class="btn btn-outline-primary mx-3 mt-2 d-block">Sair</a>
+                  </div>
                 </div>
-            </nav>
-
-        
-            <!-- Carousel End -->
-        </div>
-        <!-- Navbar & Hero End -->
-
-        <!-- Services Start -->
-        <div class="container-fluid service pb-5">
-            <div class="container pb-5">
-                <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
-                    <h1 class="display-5 mb-4" style="margin-top:80px;">Nossos Serviços</h1>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!--  Header End -->
+      <div class="body-wrapper-inner">
+        <div class="container-fluid">
+          <!--  Row 1 -->
+          <div class="row">
+            <div class="col-lg-8 d-flex align-items-strech">
+              <div class="card w-100">
+                <div class="card-body">
+                  <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
+                    <div class="mb-3 mb-sm-0">
+                      <h5 class="card-title fw-semibold">Chamados por mes</h5>
+                    </div>
+                    <div>
+                      <select class="form-select">
+                        <option value="1">March 2024</option>
+                        <option value="2">April 2024</option>
+                        <option value="3">May 2024</option>
+                        <option value="4">June 2024</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div id="sales-profit"></div>
                 </div>
-                <div class="row g-4">
-                    <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.2s">
-                        <div class="service-item">
-                            <div class="service-img">
-                                <img src="img/service-1.jpg" class="img-fluid rounded-top w-100" alt="Image">
-                            </div>
-                            <div class="rounded-bottom p-4">
-                                <a href="#" class="h4 d-inline-block mb-4"  style="color: #000; text-decoration: none;" onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" onmouseout="this.style.color='#000';">Abrir um Chamado</a>
-                                <p class="mb-4">Faça aqui sua reclamação
-                                </p>
-                                <a class="btn btn-primary rounded-pill py-2 px-4" href="chamados.php" >Abrir Chamado</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.4s">
-                        <div class="service-item">
-                            <div class="service-img">
-                                <img src="img/service-2.jpg" class="img-fluid rounded-top w-100" alt="Image">
-                            </div>
-                            <div class="rounded-bottom p-4">
-                                <a href="perfil.php" class="h4 d-inline-block mb-4"  style="color: #000; text-decoration: none;" onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" onmouseout="this.style.color='#000';">Editar Perfil</a>
-                                <p class="mb-4">Edite seu perfil de usuário
-                                </p>
-                                <a class="btn btn-primary rounded-pill py-2 px-4" href="perfil.php">editar perfil</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-4 wow fadeInUp" data-wow-delay="0.6s">
-                        <div class="service-item">
-                            <div class="service-img">
-                                <img src="img/service-2.jpg" class="img-fluid rounded-top w-100" alt="Image">
-                            </div>
-                            <div class="rounded-bottom p-4">
-                                <a href="#" class="h4 d-inline-block mb-4"  style="color: #000; text-decoration: none;" onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" onmouseout="this.style.color='#000';">veja seu chamados</a>
-                                <p class="mb-4">Aqui está os seus chamados em aberto
-                                </p>
-                                <a class="btn btn-primary rounded-pill py-2 px-4" href="ver_chamados.php">ver mais</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              </div>
             </div>
+            <div class="col-lg-4">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="card bg-danger-subtle shadow-none w-100">
+                    <div class="card-body">
+                      <div class="d-flex mb-10 pb-1 justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-6">
+                          <div
+                            class="rounded-circle-shape bg-danger px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center">
+                            <iconify-icon icon="solar:users-group-rounded-bold-duotone"
+                              class="fs-7 text-white"></iconify-icon>
+                          </div>
+                          <h6 class="mb-0 fs-4 fw-medium text-muted">
+                            Total Usuarios
+                          </h6>
+                        </div>
+                      </div>
+                      <div class="row align-items-end justify-content-between">
+                        <div class="col-5">
+                          <h2 class="mb-6 fs-8"><?php echo count($alunos); ?></h2>
+                        </div>
+                        <div class="col-5">
+                          <div id="total-followers" class="rounded-bars"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-12">
+                  <div class="card bg-secondary-subtle shadow-none w-100">
+                    <div class="card-body">
+                      <div class="d-flex mb-10 pb-1 justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-6">
+                          <div
+                            class="rounded-circle-shape bg-secondary px-3 py-2 rounded-pill d-inline-flex align-items-center justify-content-center">
+                            <iconify-icon icon="solar:wallet-2-line-duotone" class="fs-7 text-white"></iconify-icon>
+                          </div>
+                          <h6 class="mb-0 fs-4 fw-medium text-muted">
+                            Total Chamados
+                          </h6>
+                        </div>
+                      </div>
+                      <div class="row align-items-center justify-content-between pt-4">
+                        <div class="col-5">
+                          <h2 class="mb-6 fs-8 text-nowrap"><?php echo count($chamados); ?></h2>
+                        </div>
+                        <div class="col-5">
+                          <div id="total-income"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+         
+          <div class="row">
+  <div class="col-lg-4">
+    <div class="card overflow-hidden hover-img" style="border: none; margin: 0; padding: 0;">
+      <a href="chamados.php" style="display: block; text-decoration: none; color: inherit;">
+        <div class="position-relative">
+          <img src="../assets/images/blog/blog-img1.jpg" class="card-img-top" alt="materialM-img" style="width: 100%; height: auto;">
         </div>
-     
-        <!-- Footer Start -->
-        <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
-            <div class="container py-5 border-start-0 border-end-0" style="border: 1px solid; border-color: rgb(255, 255, 255, 0.08);">
-                <div class="row g-5">
-                    <div class="col-md-6 col-lg-6 col-xl-4">
-                        <div class="footer-item">
-                            <a href="index.html" class="p-0">
-                                <h4 class="text-white"></i>CMTEC</h4>
-                     
-                            </a>
-                            <p class="mb-4">Em breve estrá disponivel uma aplicação mobile</p>
-                          <div class="d-flex justify-content-center">
-    <a href="#" style="background-color: #3E5FFE; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; padding: 0.75rem 1.5rem; margin-right: 0.5rem; text-decoration: none; font-size: 1.25rem;">
-        <i class="fas fa-apple-alt" style="color: #fff; margin-right: 0.75rem; font-size: 1.5rem;"></i>
-        <div>
-            <h6 style="margin: 0; font-size: 1rem;">App Store</h6>
+        <div class="card-body p-4" style="text-align: center;">
+          <p class="d-block my-4 fs-5 text-dark fw-semibold link-primary" style="margin: 0; color: inherit;">Chamados</p>
         </div>
-    </a>
-    <a href="#" style="background-color: #3E5FFE; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; padding: 0.75rem 1.5rem; margin-left: 0.5rem; text-decoration: none; font-size: 1.25rem;">
-        <i class="fas fa-play" style="color: #fff; margin-right: 0.75rem; font-size: 1.5rem;"></i>
-        <div>
-            <h6 style="margin: 0; font-size: 1rem;" style="color: #fff;">Google Play</h6>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card overflow-hidden hover-img" style="border: none; margin: 0; padding: 0;">
+      <a href="usuarios.php" style="display: block; text-decoration: none; color: inherit;">
+        <div class="position-relative">
+          <img src="../assets/images/blog/blog-img1.jpg" class="card-img-top" alt="materialM-img" style="width: 100%; height: auto;">
         </div>
-    </a>
+        <div class="card-body p-4" style="text-align: center;">
+          <p class="d-block my-4 fs-5 text-dark fw-semibold link-primary" style="margin: 0; color: inherit;">Usuarios</p>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card overflow-hidden hover-img" style="border: none; margin: 0; padding: 0;">
+      <a href="ambientes.php" style="display: block; text-decoration: none; color: inherit;">
+        <div class="position-relative">
+          <img src="../assets/images/escada.jpg" class="card-img-top" alt="materialM-img" style="width: 100%; height: auto;">
+        </div>
+        <div class="card-body p-4" style="text-align: center;">
+          <p class="d-block my-4 fs-5 text-dark fw-semibold link-primary" style="margin: 0; color: inherit;">Ambientes</p>
+        </div>
+      </a>
+    </div>
+  </div>
 </div>
 
-
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-2">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4" >Links Rápidos</h4>
-                            <a href="#" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> About Us
-</a>
-<a href="chamados.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> Chamados
-</a>
-<a href="FAQ.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> FAQ
-</a>
-<a href="perfil.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> Perfil
-</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4">Suporte</h4>
-                            <a href="#" style="color: #fffff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
- ><i class="fas fa-angle-right me-2"></i>Politicas de Privacidade</a>
-                            <a href="#" style="color: #fffff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-      ><i class="fas fa-angle-right me-2"></i> Termos & Condições</a>
-                            <a href="#" style="color: #fffff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-      ><i class="fas fa-angle-right me-2"></i> Support</a>
-                            <a href="./FAQ.php" style="color: #fffff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-       ><i class="fas fa-angle-right me-2"></i> FAQ</a>
-                            <a href="FAQ.php" style="color: #fffff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
- ><i class="fas fa-angle-right me-2" ></i> Help</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4">Entre em contato</h4>
-                            
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-envelope text-primary me-3"></i>
-                                <p class="text-white mb-0">techinoutpro@gmail..com</p>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="fa fa-phone-alt text-primary me-3"></i>
-                                <p class="text-white mb-0">(+011) 98775 7890</p>
-                            </div>
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fab fa-firefox-browser text-primary me-3"></i>
-                                <p class="text-white mb-0">techinout.com</p>
-                            </div>
-                            <div class="d-flex">
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-facebook-f text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-twitter text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-instagram text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-0" href="#"><i class="fab fa-linkedin-in text-white"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
+          </div>
         </div>
-        <!-- Footer End -->
-        
-        <!-- Copyright Start -->
-        <div class="container-fluid copyright py-4">
-            <div class="container">
-                <div class="row g-4 align-items-center">
-                    <div class="col-md-6 text-center text-md-start mb-md-0">
-                        <span class="text-body"><a href="#" class="border-bottom text-white"><i class="fas fa-copyright text-light me-2"></i>TECHIN-OUT</a>, All right reserved.</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Copyright End -->
-
-        
-        <!-- JavaScript Libraries -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/wow/wow.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/counterup/counterup.min.js"></script>
-        <script src="lib/lightbox/js/lightbox.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-        
-
-        <!-- Template Javascript -->
-        <script src="./js/main.js"></script>
-    </body>
+      </div>
+    </div>
+  </div>
+  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/sidebarmenu.js"></script>
+  <script src="../assets/js/app.min.js"></script>
+  <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+  <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
+  <script src="../assets/js/dashboard.js"></script>
+  <!-- solar icons -->
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+</body>
 
 </html>

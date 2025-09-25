@@ -1,9 +1,9 @@
 <?php
 session_start(); // Inicia a sessão
 
-// Verifica se o usuário está logado como aluno
-if (!isset($_SESSION['token']) || strpos($_SESSION['token'], '_aluno') === false) {
-    // Se não estiver logado como aluno, redireciona para a página de login
+// Verifica se o usuário está logado como admin
+if (!isset($_SESSION['token']) || strpos($_SESSION['token'], '_admin') === false) {
+    // Se não estiver logado como admin, redireciona para a página de login
     header('Location: login.html');
     exit;
 }

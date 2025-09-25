@@ -1,432 +1,405 @@
 <?php
 session_start();
+include '../../../Controller/conexao.php'; 
 
-// Verifica a validade do token da sessão
+// Verifica se o token da sessão está presente
 if (!isset($_SESSION['token'])) {
-    // Se o token não estiver presente, redireciona para a página de login
-    header('Location: ../login.html');
+    header('Location: ../../login.html');
     exit;
 }
-
 // Divide o token em sua parte principal e tipo (admin ou aluno)
 list($token, $type) = explode('_', $_SESSION['token'], 2);
 
-// Verifica se o tipo do token é 'aluno'
-if ($type !== 'aluno') {
-    // Se o tipo não for 'aluno', redireciona para a página de login
-    header('Location: ../login.html');
+// Verifica se o tipo do token é 'admin'
+if ($type !== 'admin') {
+    header('Location: ../../login.html');
     exit;
 }
-$user = $_SESSION['user'];
+
 ?>
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
 
-    <head>
-        <meta charset="utf-8">
-        <title>CMTEC - FAQs</title>
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <meta content="" name="keywords">
-        <meta content="" name="description">
-        <link rel="icon" href="img/c.png" type="image/png">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CMTEC - ADMIN</title>
+  <link rel="stylesheet" href="../assets/css/styles.min.css" />
+  <link rel="stylesheet" href="../assets/css/usuario.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
 
+</head>
 
-        <!-- Google Web Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"> 
-
-        <!-- Icon Font Stylesheet -->
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
-        <!-- Libraries Stylesheet -->
-        <link href="lib/animate/animate.min.css" rel="stylesheet">
-        <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet">
-        <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
-
-        <!-- Customized Bootstrap Stylesheet -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Template Stylesheet -->
-        <link href="css/style.css" rel="stylesheet">
-
-   
-            <!-- ... outros links e meta tags ... -->
-            <style>
-                .nav-link:hover,
-                .footer-item a:hover {
-                    color: #3E5FFE; /* Azul para links */
-                    text-decoration: underline; /* Adiciona um sublinhado para melhor visualização */
-                }
-        
-                /* Botões */
-            
-                .text-primary {
-                    color: #3E5FFE !important;
-                }
-        
-                .btn-primary {
-                    background-color: #3E5FFE;
-                    border-color: #3E5FFE;
-                }
-        
-                .navbar-light .navbar-brand {
-                    color: #3E5FFE;
-                }
-        
-                .navbar-nav .nav-link.active {
-                    color: #3E5FFE;
-                }
-        
-                .footer-item h4 {
-                    color: #3E5FFE;
-                }
-        
-                .footer-item a {
-                    color: #3E5FFE;
-                }
-        
-                .btn-light {
-                    background-color: #3E5FFE;
-                    color: #fff;
-                }
-        
-                .btn-light:hover {
-                    background-color: #3457D0;
-                    color: #fff;
-                }
-        
-                :root {
-                    --bs-primary: #3E5FFE; /* Azul */
-                    --bs-secondary: #F0F0F0; /* Exemplo de cor secundária */
-                    --bs-dark: #000000; /* Exemplo de cor escura */
-                    --bs-light: #FFFFFF; /* Exemplo de cor clara */
-                    --bs-white: #FFFFFF; /* Branco */
-                    --bs-body: #6c757d; /* Exemplo de cor do texto */
-                }
-        
-                .footer .footer-item .bg-primary {
-                    background-color: #000000; /* Fundo preto */
-                    color: #ffffff; /* Texto branco */
-                }
-        
-                .footer .footer-item .bg-primary:hover {
-                    background-color: #333333; /* Fundo preto mais escuro ao passar o mouse */
-                    color: #ffffff; /* Texto branco ao passar o mouse */
-                }
-        
-                /* Estilo do footer */
-                .footer {
-                    background-color: #212529; /* Cor de fundo escura */
-                    color: #ffffff; /* Cor do texto branco */
-                }
-        
-                .footer .footer-item h4,
-                .footer .footer-item a {
-                    color: #ffffff; /* Cor do texto branco */
-                }
-        
-                .footer .footer-item a:hover {
-                    color: #3E5FFE; /* Azul para links ao passar o mouse */
-                }
-        
-                /* Estilo do copyright */
-                .copyright {
-                    background-color: #000000; /* Cor de fundo preta */
-                    color: #ffffff; /* Cor do texto branca */
-                }
-        
-                .copyright a {
-                    color: #ffffff; /* Cor do texto branca para links */
-                }
-        
-                .copyright a:hover {
-                    color: #3E5FFE; /* Azul para links ao passar o mouse */
-                }
-                /* Cor e borda dos botões do FAQ ao serem clicados */
-.accordion-button:focus, 
-.accordion-button:active {
-    box-shadow: none; /* Remove a sombra padrão ao clicar */
-    border-color: #3E5FFE; /* Altere a cor da borda ao clicar */
-    background-color: #E0E6FF; /* Altere a cor de fundo ao clicar (opcional) */
-    color: #3E5FFE; /* Altere a cor do texto ao clicar (opcional) */
-}
-
-
-            </style>
-     
-        
-    </head>
-
-    <body>
-
-
-        <!-- Topbar Start -->
-        <div class="container-fluid topbar bg-light px-5 d-none d-lg-block">
-            <div class="row gx-0 align-items-center">
-                <div class="col-lg-8 text-center text-lg-start mb-2 mb-lg-0">
-                    <div class="d-flex flex-wrap">
-                    <a href="mailto:example@gmail.com" class="text-muted small me-0"><i class="fas fa-envelope text-primary me-2"></i><?php echo htmlspecialchars($user['email']); ?></a>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center text-lg-end">
-                    <div class="d-inline-flex align-items-center" style="height: 45px;">
-                       
-                    </div>
-                </div>
-            </div>
+<body>
+  <!--  Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <!-- Sidebar scroll-->
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between" >
+          <a href="index.php" class="text-nowrap logo-img" >
+            <h2>CMTEC ADMIN</h2>
+          </a>
+          <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+            <i class="ti ti-x fs-8"></i>
+          </div>
         </div>
-        <!-- Topbar End -->
-
-        <!-- Navbar & Hero Start -->
-        <div class="container-fluid position-relative p-0">
-            <nav class="navbar navbar-expand-lg navbar-light px-4 px-lg-5 py-3 py-lg-0">
-                <a href="index.php" class="navbar-brand p-0">
-                    <h1 class="text-primary"></i>CMTEC</h1>
-                    <!-- <img src="img/logo.png" alt="Logo"> -->
+        <!-- Sidebar navigation-->
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+          <ul id="sidebarnav">
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Home</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="index.php" aria-expanded="false">
+                <iconify-icon icon="solar:widget-add-line-duotone"></iconify-icon>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <span class="sidebar-divider lg"></span>
+            </li>
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Componentes</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="chamados.php" aria-expanded="false">
+                <iconify-icon icon="solar:layers-minimalistic-bold-duotone"></iconify-icon>
+                <span class="hide-menu">Chamados</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="usuarios.php" aria-expanded="false">
+                <iconify-icon icon="solar:danger-circle-line-duotone"></iconify-icon>
+                <span class="hide-menu">Usuarios</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="ambientes.php" aria-expanded="false">
+                <iconify-icon icon="solar:bookmark-square-minimalistic-line-duotone"></iconify-icon>
+                <span class="hide-menu">Ambientes</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="estatisticas.php" aria-expanded="false">
+                <iconify-icon icon="solar:file-text-line-duotone"></iconify-icon>
+                <span class="hide-menu">Estatisticas</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="FAQ.php" aria-expanded="false">
+                <iconify-icon icon="solar:text-field-focus-line-duotone"></iconify-icon>
+                <span class="hide-menu">FAQs</span>
+              </a>
+            </li>
+            <li>
+              <span class="sidebar-divider lg"></span>
+            </li>           
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="../../deslogar.php" aria-expanded="false">
+                <iconify-icon icon="solar:login-3-line-duotone"></iconify-icon>
+                <span class="hide-menu">Sair</span>
+              </a>
+            </li>         
+                    
+        </nav>
+        <!-- End Sidebar navigation -->
+      </div>
+      <!-- End Sidebar scroll-->
+    </aside>
+    <!--  Sidebar End -->
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+      <!--  Header Start -->
+      <header class="app-header">
+        <nav class="navbar navbar-expand-lg navbar-light">
+          <ul class="navbar-nav">
+            <li class="nav-item d-block d-xl-none">
+              <a class="nav-link sidebartoggler " id="headerCollapse" href="javascript:void(0)">
+                <i class="ti ti-menu-2"></i>
+              </a>
+            </li>
+          </ul>
+          <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+            <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+              <li class="nav-item dropdown">
+                <a class="nav-link " href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+                  <img src="../assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <div class="navbar-nav ms-auto py-0">
-                        <a href="index.php" class="nav-item nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-                        onmouseover="this.style.color='#000'; this.style.backgroundColor='transparent';" >Home</a>
-                        <a href="chamados.php" class="nav-item nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-                        onmouseover="this.style.color='#000'; this.style.backgroundColor='transparent';" >Chamados</a>
-                        <a href="perfil.php" class="nav-item nav-link" style="color: #000; text-decoration: none; background-color: transparent;" 
-                        onmouseover="this.style.color='#000'; this.style.backgroundColor='transparent';" >Perfil</a>
-                        <div class="nav-item dropdown">
-                            <a href="#" class="nav-link active" data-bs-toggle="dropdown"  style="color: #000; text-decoration: none; background-color: transparent;" 
-                            onmouseover="this.style.color='#3E5FFE'; this.style.backgroundColor='transparent';" 
-                            onmouseout="this.style.color='#000'; this.style.backgroundColor='transparent';">
-                                <span class="dropdown-toggle" >Paginas</span>
-                            </a>
-                            <div class="dropdown-menu m-0">
-                            <a href="chamados.php" class="dropdown-item">Chamados</a>
-                                <a href="perfil.php" class="dropdown-item">Perfil</a>
-                                <a href="FAQ.php" class="dropdown-item active" style="background-color:#3E5FFE;">FAQs</a>
-                                <a href="../deslogar.php" class="dropdown-item active" style="background-color:#d9d9d9; color:#000;">Sair</a>
-
-                            </div>
-                        </div>
-                    </div>
+                <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
+                  <div class="message-body">
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-user fs-6"></i>
+                      <p class="mb-0 fs-3">Meu perfil</p>
+                    </a>
+                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                      <i class="ti ti-list-check fs-6"></i>
+                      <p class="mb-0 fs-3">Mensagens</p>
+                    </a>
+                    <a href="../../deslogar.php" class="btn btn-outline-primary mx-3 mt-2 d-block">Sair</a>
+                  </div>
                 </div>
-            </nav>
-
-
-        <!-- FAQs Start -->
-        <div class="container-fluid faq-section py-5">
-            <div class="container py-5 overflow-hidden">
-                <div class="text-center mx-auto pb-5 wow fadeInUp" data-wow-delay="0.2s" style="max-width: 800px;">
-                    <h4 class="text-primary">FAQs</h4>
-                    <h1 class="display-5 mb-4">Frequently Asked Questions</h1>
-                    <p class="mb-0">Veja as perguntas mais frequentes feita pelos usuarios do CMTEC
-                    </p>
-                </div>
-                <div class="row g-5 align-items-center">
-                    <div class="col-lg-6 wow fadeInLeft" data-wow-delay="0.2s">
-                        <div class="accordion accordion-flush bg-light rounded p-5" id="accordionFlushSection">
-                            <div class="accordion-item rounded-top">
-                                <h2 class="accordion-header" id="flush-headingOne">
-                                    <button class="accordion-button collapsed rounded-top" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                                    Como faço um chamado?
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <!--  Header End -->
+      <div class="body-wrapper-inner">
+        <div class="container-fluid">
+          <!--  Row 1 -->
+           <!-- FAQ Accordion -->
+           <div class="accordion accordion-flush" id="accordionFlushExample">
+                <!-- Navegação no Site -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseNavigation" aria-expanded="false" aria-controls="flush-collapseNavigation">
+                            Navegação no Site
+                        </button>
+                    </h2>
+                    <div id="flush-collapseNavigation" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            <!-- FAQ Item 1 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                        Como faço para navegar no site?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the first item's accordion body.</div>
+                                <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#flush-collapseNavigation">
+                                    <div class="accordion-body">Utilize a barra de navegação lateral para acessar as diferentes seções do site. Clique nos itens de menu para visualizar as páginas correspondentes.</div>
                                 </div>
                             </div>
+
+                            <!-- FAQ Item 2 -->
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingTwo">
+                                <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-                                    Como vejo meus chamados?
+                                        Como faço para ver as estatísticas?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                                <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#flush-collapseNavigation">
+                                    <div class="accordion-body">Clique na aba "Estatísticas" na barra de navegação lateral para visualizar gráficos e dados sobre o desempenho do sistema.</div>
                                 </div>
                             </div>
+
+                            <!-- FAQ Item 3 -->
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingThree">
+                                <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
-                                    Como vejo meu perfil?
+                                        Como faço para acessar a tabela de usuários?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                                <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#flush-collapseNavigation">
+                                    <div class="accordion-body">Clique na aba "Usuários" na barra de navegação lateral para acessar a tabela de usuários registrados no sistema.</div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configurações do Sistema -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSettings" aria-expanded="false" aria-controls="flush-collapseSettings">
+                            Configurações do Sistema
+                        </button>
+                    </h2>
+                    <div id="flush-collapseSettings" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            <!-- FAQ Item 4 -->
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingFour">
+                                <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
-                                    Como eu deleto meu perfil?
+                                        Como posso alterar as configurações do sistema?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                                <div id="flush-collapseFour" class="accordion-collapse collapse" data-bs-parent="#flush-collapseSettings">
+                                    <div class="accordion-body">Acesse a aba "Configurações" na barra de navegação lateral para alterar as configurações do sistema, como preferências de usuário e ajustes gerais.</div>
                                 </div>
                             </div>
+
+                            <!-- FAQ Item 10 -->
                             <div class="accordion-item">
-                                <h2 class="accordion-header" id="flush-headingFive">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTen" aria-expanded="false" aria-controls="flush-collapseTen">
+                                        Como posso redefinir minha senha?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseTen" class="accordion-collapse collapse" data-bs-parent="#flush-collapseSettings">
+                                    <div class="accordion-body">Vá até a aba "Configurações" e clique em "Redefinir Senha". Siga as instruções para criar uma nova senha.</div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 14 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFourteen" aria-expanded="false" aria-controls="flush-collapseFourteen">
+                                        Como posso configurar notificações por e-mail?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseFourteen" class="accordion-collapse collapse" data-bs-parent="#flush-collapseSettings">
+                                    <div class="accordion-body">Acesse a seção "Notificações" nas configurações do sistema para ativar ou desativar notificações por e-mail e personalizar suas preferências.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outras Perguntas Frequentes -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOther" aria-expanded="false" aria-controls="flush-collapseOther">
+                            Outras Perguntas Frequentes
+                        </button>
+                    </h2>
+                    <div id="flush-collapseOther" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            <!-- FAQ Item 5 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFive" aria-expanded="false" aria-controls="flush-collapseFive">
-                                    Como encerro minha sessão?
+                                        O que devo fazer se encontrar um erro?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseFive" class="accordion-collapse collapse" aria-labelledby="flush-headingFive" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the second item's accordion body. Let's imagine this being filled with some actual content.</div>
+                                <div id="flush-collapseFive" class="accordion-collapse collapse" data-bs-parent="#flush-collapseOther">
+                                    <div class="accordion-body">Caso encontre um erro, entre em contato com o suporte técnico através da aba "Ajuda" para relatar o problema.</div>
                                 </div>
                             </div>
-                            <div class="accordion-item rounded-bottom">
-                                <h2 class="accordion-header" id="flush-headingSix">
+
+                            <!-- FAQ Item 6 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSix" aria-expanded="false" aria-controls="flush-collapseSix">
-                                    Como entro em contato?
+                                        Como posso sugerir uma nova funcionalidade?
                                     </button>
                                 </h2>
-                                <div id="flush-collapseSix" class="accordion-collapse collapse" aria-labelledby="flush-headingSix" data-bs-parent="#accordionFlushSection">
-                                    <div class="accordion-body">Placeholder content for this accordion, which is intended to demonstrate the <code>.accordion-flush</code> class. This is the third item's accordion body. Nothing more exciting happening here in terms of content, but just filling up the space to make it look, at least at first glance, a bit more representative of how this would look in a real-world application.</div>
+                                <div id="flush-collapseSix" class="accordion-collapse collapse" data-bs-parent="#flush-collapseOther">
+                                    <div class="accordion-body">Para sugerir uma nova funcionalidade, vá até a aba "Sugestões" e envie sua proposta através do formulário disponível.</div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 7 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSeven" aria-expanded="false" aria-controls="flush-collapseSeven">
+                                        Qual é o horário de funcionamento do suporte?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseSeven" class="accordion-collapse collapse" data-bs-parent="#flush-collapseOther">
+                                    <div class="accordion-body">O suporte está disponível 24 horas por dia, 7 dias por semana para atender às suas necessidades.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 wow fadeInRight" data-wow-delay="0.2s">
-                        <div class="bg-primary rounded">
-                            <img src="img/about-2.png" class="img-fluid w-100" alt="">
-                        </div>
-                    </div>
                 </div>
-            </div>
-        </div>
-        <!-- FAQs End -->
 
-        <div class="container-fluid footer py-5 wow fadeIn" data-wow-delay="0.2s">
-            <div class="container py-5 border-start-0 border-end-0" style="border: 1px solid; border-color: rgb(255, 255, 255, 0.08);">
-                <div class="row g-5">
-                    <div class="col-md-6 col-lg-6 col-xl-4">
-                        <div class="footer-item">
-                            <a href="index.html" class="p-0">
-                                <h4 class="text-white"></i>CMTEC</h4>
-                     
-                            </a>
-                            <p class="mb-4">Em breve estrá disponivel uma aplicação mobile</p>
-                          <div class="d-flex justify-content-center">
-    <a href="#" style="background-color: #3E5FFE; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; padding: 0.75rem 1.5rem; margin-right: 0.5rem; text-decoration: none; font-size: 1.25rem;">
-        <i class="fas fa-apple-alt" style="color: #fff; margin-right: 0.75rem; font-size: 1.5rem;"></i>
-        <div>
-            <h6 style="margin: 0; font-size: 1rem;">App Store</h6>
-        </div>
-    </a>
-    <a href="#" style="background-color: #3E5FFE; color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; padding: 0.75rem 1.5rem; margin-left: 0.5rem; text-decoration: none; font-size: 1.25rem;">
-        <i class="fas fa-play" style="color: #fff; margin-right: 0.75rem; font-size: 1.5rem;"></i>
-        <div>
-            <h6 style="margin: 0; font-size: 1rem;" style="color: #fff;">Google Play</h6>
-        </div>
-    </a>
-</div>
+                <!-- Contato e Suporte -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseContact" aria-expanded="false" aria-controls="flush-collapseContact">
+                            Contato e Suporte
+                        </button>
+                    </h2>
+                    <div id="flush-collapseContact" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            <!-- FAQ Item 8 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseEight" aria-expanded="false" aria-controls="flush-collapseEight">
+                                        Como posso entrar em contato com o suporte?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseEight" class="accordion-collapse collapse" data-bs-parent="#flush-collapseContact">
+                                    <div class="accordion-body">Você pode entrar em contato com o suporte através da aba "Contato" ou enviando um e-mail para suporte@exemplo.com.</div>
+                                </div>
+                            </div>
 
+                            <!-- FAQ Item 9 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseNine" aria-expanded="false" aria-controls="flush-collapseNine">
+                                        Existe um chat ao vivo disponível?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseNine" class="accordion-collapse collapse" data-bs-parent="#flush-collapseContact">
+                                    <div class="accordion-body">Sim, o chat ao vivo está disponível na página de suporte durante o horário comercial.</div>
+                                </div>
+                            </div>
 
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-2">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4" >Links Rápidos</h4>
-                            <a href="#" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> About Us
-</a>
-<a href="chamados.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> Chamados
-</a>
-<a href="FAQ.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> FAQ
-</a>
-<a href="perfil.php" style="color: #ffffff; text-decoration: none;" 
-   onmouseover="this.style.color='#FFF';">
-   <i class="fas fa-angle-right me-2"></i> Perfil
-</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4">Suporte</h4>
-                            <a href="#" style="color: #fff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
- ><i class="fas fa-angle-right me-2"></i>Politicas de Privacidade</a>
-                            <a href="#" style="color: #fff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-      ><i class="fas fa-angle-right me-2"></i> Termos & Condições</a>
-                            <a href="#" style="color: #fff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-      ><i class="fas fa-angle-right me-2"></i> Support</a>
-                            <a href="FAQ.php" style="color: #fff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
-       ><i class="fas fa-angle-right me-2"></i> FAQ</a>
-                            <a href="#" style="color: #fff; text-decoration: none;" 
-       onmouseover="this.style.color='#FFF';" 
- ><i class="fas fa-angle-right me-2" ></i> Help</a>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-lg-6 col-xl-3">
-                        <div class="footer-item">
-                            <h4 class="text-white mb-4">Entre em contato</h4>
-                            
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-envelope text-primary me-3"></i>
-                                <p class="text-white mb-0">techinoutpro@gmail..com</p>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <i class="fa fa-phone-alt text-primary me-3"></i>
-                                <p class="text-white mb-0">(+011) 98775 7890</p>
-                            </div>
-                            <div class="d-flex align-items-center mb-4">
-                                <i class="fab fa-firefox-browser text-primary me-3"></i>
-                                <p class="text-white mb-0">techinout.com</p>
-                            </div>
-                            <div class="d-flex">
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-facebook-f text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-twitter text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-3" href="#"><i class="fab fa-instagram text-white"></i></a>
-                                <a class="btn btn-primary btn-sm-square rounded-circle me-0" href="#"><i class="fab fa-linkedin-in text-white"></i></a>
+                            <!-- FAQ Item 12 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwelve" aria-expanded="false" aria-controls="flush-collapseTwelve">
+                                        Como posso enviar um feedback sobre o sistema?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseTwelve" class="accordion-collapse collapse" data-bs-parent="#flush-collapseContact">
+                                    <div class="accordion-body">Você pode enviar seu feedback através da aba "Feedback" ou completando o formulário disponível no site.</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- Footer End -->
-        
-        <!-- Copyright Start -->
-        <div class="container-fluid copyright py-4">
-            <div class="container">
-                <div class="row g-4 align-items-center">
-                    <div class="col-md-6 text-center text-md-start mb-md-0">
-                        <span class="text-body"><a href="#" class="border-bottom text-white"><i class="fas fa-copyright text-light me-2"></i>TECHIN-OUT</a>, All right reserved.</span>
+
+                <!-- Sugestões e Melhorias -->
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSuggestions" aria-expanded="false" aria-controls="flush-collapseSuggestions">
+                            Sugestões e Melhorias
+                        </button>
+                    </h2>
+                    <div id="flush-collapseSuggestions" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                        <div class="accordion-body">
+                            <!-- FAQ Item 11 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseEleven" aria-expanded="false" aria-controls="flush-collapseEleven">
+                                        Como posso sugerir melhorias para o sistema?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseEleven" class="accordion-collapse collapse" data-bs-parent="#flush-collapseSuggestions">
+                                    <div class="accordion-body">Você pode sugerir melhorias acessando a aba "Sugestões" e preenchendo o formulário para enviar suas propostas.</div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ Item 13 -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThirteen" aria-expanded="false" aria-controls="flush-collapseThirteen">
+                                        Posso contribuir para o desenvolvimento do sistema?
+                                    </button>
+                                </h2>
+                                <div id="flush-collapseThirteen" class="accordion-collapse collapse" data-bs-parent="#flush-collapseSuggestions">
+                                    <div class="accordion-body">Sim, você pode contribuir para o desenvolvimento do sistema participando de programas de feedback ou colaborando com a equipe de desenvolvimento.</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+               
+
         </div>
-        <!-- Copyright End -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../assets/libs/jquery/dist/jquery.min.js"></script>
+  <script src="../assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../assets/js/sidebarmenu.js"></script>
+  <script src="../assets/js/app.min.js"></script>
+  <script src="../assets/libs/apexcharts/dist/apexcharts.min.js"></script>
+  <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
+  <script src="../assets/js/dashboard.js"></script>
+   <!-- Scripts -->
+   <script src="./js/usuario.js" type="module"></script>
 
-
-
-        
-        <!-- JavaScript Libraries -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/wow/wow.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/counterup/counterup.min.js"></script>
-        <script src="lib/lightbox/js/lightbox.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-        
-
-        <!-- Template Javascript -->
-        <script src="js/main.js"></script>
-    </body>
+  <!-- solar icons -->
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+</body>
 
 </html>

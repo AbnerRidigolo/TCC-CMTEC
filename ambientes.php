@@ -16,10 +16,10 @@ if ($type !== 'admin') {
     exit;
 }
 
-$sql = "SELECT codChamado, descricao, data, imagem FROM Chamado";
+$sql = "SELECT codAmbiente, descricao FROM Ambiente";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-$chamados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$ambientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -31,133 +31,13 @@ $chamados = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <link rel="stylesheet" href="../assets/css/styles.min.css" />
   <link rel="stylesheet" href="../assets/css/usuario.css" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
-  <style>
-.card {
-  width: 100%;
-  max-width: 100%;
-  position: relative;
-  transition: transform 0.3s ease, background-color 0.3s ease; /* Adiciona transições suaves para transformação e cor */
-}
 
-.card:hover {
-
-  background-color: #f0f0f0; /* Altera a cor de fundo do card ao passar o mouse */
-}
-
-.card-img {
-  width: 150px;
-  height: auto;
-  object-fit: cover;
-  box-shadow: 0 4px 8px rgba(0, 0, 0.2, 0.1); /* Adiciona uma sombra sutil à imagem */
-}
-
-.btn-group {
-  position: absolute;
-  top: 0;
-  end: 0;
-}
-
-.square-btn {
-  width: 40px; /* Ajuste o tamanho conforme necessário */
-  height: 40px; /* Ajuste o tamanho conforme necessário */
-  border-radius: 0 50% 0% 10%; /* Arredonda apenas o canto superior direito */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0; /* Remove o padding interno */
-  background-color: #00a1ff; /* Cor do botão */
-  color: white; /* Cor do texto do botão */
-  border: none; /* Remove a borda padrão do botão */
-  transition: background-color 0.3s ease; /* Suaviza a transição de cor */
-}
-
-.square-btn:hover {
-  background-color: #0088cc; /* Cor quando o botão é hover */
-}
-
-.square-btn:focus {
-  background-color: #005f99; /* Cor quando o botão está focado */
-  outline: none; /* Remove o contorno padrão de foco */
-}
-
-.square-btn:active {
-  background-color: #004080; /* Cor quando o botão é clicado */
-}
-
-@media (max-width: 768px) {
-  .card {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .card-img {
-    margin: 0 auto;
-    width: 100%;
-    height: 200px;
-  }
-
-  .btn-group {
-    position: relative;
-    margin-top: 10px;
-    justify-content: center;
-  }
-}
-.btn-view-image {
-  width: 15%;
-  height:30px;
-  font-size:14px;
-  align-items:center;
-  justify-content:center;
-  display:flex;
-
-}
-.btn-custom {
-      background-color: #00a1ff;
-      color: white;
-    }
-
-    .btn-custom:hover {
-      background-color: #007bb5;
-      color: white;
-    }
-
-    .modal-body {
-      text-align: center;
-    }
-
-    .modal-body .img-fluid {
-      max-width: 100%;
-      height: auto;
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-title {
-      margin: 0;
-    }
-    
-    .modal-footer {
-      justify-content: center;
-    }
-
-    /* Definindo a fonte personalizada para o card */
-
-
-/* Charm extra: efeito de hover */
-.custom-card:hover {
-  background-color: #e9ecef;
-  transform: scale(1.02);
-  transition: all 0.3s ease-in-out;
-}
-
-  </style>
 </head>
 
+
+
 <body>
+  
   <!--  Body Wrapper -->
   <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
     data-sidebar-position="fixed" data-header-position="fixed">
@@ -279,59 +159,92 @@ $chamados = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <!--  Header End -->
       <div class="body-wrapper-inner">
         <div class="container-fluid">
-
-        <div class="container mt-5">
-  <div class="card text-center custom-card">
-    <div class="card-body">
-      <h3 class="card-title">Gerenciamento de Chamado</h3>
-      <h5 class="card-title">Total de chamados: <?php echo count($chamados); ?></h5>
-    </div>
-  </div>
-</div>
-
-
-        <div class="container mt-5">
-  <?php foreach ($chamados as $chamado): ?>
-    <div class="card position-relative d-flex flex-row align-items-center p-3 mb-3">
-      <img src="../assets/images/chamados/<?php echo htmlspecialchars($chamado['imagem']); ?>" alt="Imagem do card" class="card-img me-3">
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title">Código do Chamado: <?php echo htmlspecialchars($chamado['codChamado']); ?></h5>
-        <p class="card-text">Descrição: <?php echo htmlspecialchars($chamado['descricao']); ?></p>
-        <p class="card-text">Data: <?php echo htmlspecialchars(date('d/m/Y', strtotime($chamado['data']))); ?></p>
-        <button type="button" class="btn btn-primary btn-sm btn-view-image" data-bs-toggle="modal" data-bs-target="#modalImagem-<?php echo $chamado['codChamado']; ?>">Ver Imagem</button>
-        
-        <!-- Modal -->
-        <div class="modal fade" id="modalImagem-<?php echo $chamado['codChamado']; ?>" tabindex="-1" aria-labelledby="modalImagemLabel-<?php echo $chamado['codChamado']; ?>" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalImagemLabel-<?php echo $chamado['codChamado']; ?>">Imagem do Chamado</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body text-center">
-                <img src="../assets/images/chamados/<?php echo htmlspecialchars($chamado['imagem']); ?>" alt="Imagem do chamado" class="img-fluid">
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-custom" data-bs-dismiss="modal">Fechar</button>
-              </div>
+          <!--  Row 1 -->
+          <div class="table-responsive">
+    <div class="table-wrapper">
+        <div class="table-title">
+            <div class="row">
+                <div class="col-xs-5">
+                    <h2>Gerenciamento de <b>Ambientes</b></h2>
+                </div>
             </div>
-          </div>
         </div>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($ambientes as $ambiente): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($ambiente['codAmbiente']); ?></td>
+                        <td><?php echo htmlspecialchars($ambiente['descricao']); ?></td>
+                        <td class="actions">
+                            <!-- Botão de Editar -->
+                            <a href="#" class="fa fa-edit" title="Editar" data-toggle="modal" data-target="#editModal<?php echo $ambiente['codAmbiente']; ?>"></a>
 
-        <div class="btn-group position-absolute top-0 end-0" role="group">
-  <button type="button" class="btn btn-secondary square-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-ellipsis-v"></i>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a class="dropdown-item" href="#">Responder</a></li>
-    <li>
-      <a href="../../../DAO/chamado/chamadoDelete.php?id=<?php echo htmlspecialchars($chamado['codChamado']); ?>" class="dropdown-item" onclick="return confirm('Tem certeza que deseja excluir este chamado?');">Deletar</a>
-    </li>
-  </ul>
-</div>
-      </div>
+                            <!-- Botão de Deletar -->
+                            <a href="../../../DAO/ambiente/ambienteDelete.php?id=<?php echo htmlspecialchars($ambiente['codAmbiente']); ?>" class="fa fa-trash" title="Excluir" data-toggle="tooltip" onclick="return confirm('Tem certeza que deseja excluir este ambiente?');"></a>
+                            
+                            <!-- Modal de Edição -->
+                            <div class="modal fade" id="editModal<?php echo $ambiente['codAmbiente']; ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel<?php echo $ambiente['codAmbiente']; ?>" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editModalLabel<?php echo $ambiente['codAmbiente']; ?>">Editar Ambiente</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="../../../DAO/ambiente/ambientePatch.php" method="post">
+                                                <div class="form-group mb-4">
+                                                    <label for="descricao<?php echo $ambiente['codAmbiente']; ?>">Descrição</label>
+                                                    <input type="text" class="form-control" id="descricao<?php echo $ambiente['codAmbiente']; ?>" name="descricao" value="<?php echo htmlspecialchars($ambiente['descricao']); ?>">
+                                                </div>
+                                                <input type="hidden" name="codAmbiente" value="<?php echo $ambiente['codAmbiente']; ?>">
+                                                <button type="submit" class="btn btn-primary w-100">Atualizar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div class="clearfix">
+            <button type="button" class="btn btn-primary mt-3 w-100" data-toggle="modal" data-target="#addAmbienteModal">Adicionar Ambiente</button>
+            <div class="hint-text mt-2">Mostrando <b><?php echo count($ambientes); ?></b> registros</div>
+        </div>
     </div>
-  <?php endforeach; ?>
+</div>
+
+<!-- Modal de Adição -->
+<div class="modal fade" id="addAmbienteModal" tabindex="-1" role="dialog" aria-labelledby="addAmbienteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAmbienteModalLabel">Adicionar Novo Ambiente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="../../../DAO/ambiente/ambientePost.php" method="post">
+                    <div class="form-group mb-4">
+                        <label for="descricaoNovo">Nome do Ambiente</label>
+                        <input type="text" class="form-control" id="descricaoNovo" name="descricao" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Adicionar</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
         </div>
@@ -347,8 +260,12 @@ $chamados = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <script src="../assets/libs/simplebar/dist/simplebar.js"></script>
   <script src="../assets/js/dashboard.js"></script>
    <!-- Scripts -->
+   <script src="assets/js/ambientes.js" type="module"></script>
+
   <!-- solar icons -->
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 
 </html>
