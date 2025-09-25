@@ -1,71 +1,67 @@
-📘 CMTEC - Sistema de Gestão de Chamados
+# jQuery
 
-Sistema completo de controle de chamados desenvolvido com PHP, MySQL, HTML, CSS, JavaScript e Bootstrap. Voltado para instituições ou empresas que precisam gerenciar atendimentos, ambientes e usuários de forma eficiente e com visual moderno.
+> jQuery is a fast, small, and feature-rich JavaScript library.
 
-🧩 Funcionalidades
-✅ Autenticação de usuários
+For information on how to get started and how to use jQuery, please see [jQuery's documentation](http://api.jquery.com/).
+For source files and issues, please visit the [jQuery repo](https://github.com/jquery/jquery).
 
-🧑‍💻 Perfis diferenciados: Administrador e Usuário
+If upgrading, please see the [blog post for 3.4.0](https://blog.jquery.com/2019/04/10/jquery-3-4-0-released/). This includes notable differences from the previous version and a more readable changelog.
 
-📥 Registro e visualização de chamados
+## Including jQuery
 
-🛠️ Controle de ambientes e manutenção
+Below are some of the most common ways to include jQuery.
 
-📊 Dashboard administrativo (com jQuery e Bootstrap)
+### Browser
 
-🔒 Validação de login
+#### Script tag
 
-📁 Integração com banco de dados MySQL (mysql2.sql)
+```html
+<script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+```
 
-🗂 Estrutura do Projeto
-bash
-Copiar
-Editar
-cmtec/
-├── admin/               # Painel administrativo
-├── usuario/             # Interface do usuário comum
-├── DAO/                 # Data Access Objects (CRUD de entidades)
-├── Model/               # Representação de dados em PHP
-├── Controller/          # Conexão com banco de dados
-├── js/, lib/, scss/     # Recursos front-end
-├── login.html           # Tela de login
-├── registro.php         # Registro de novos usuários
-├── validarLogin.php     # Script de validação de login
-├── mysql2.sql           # Script SQL do banco de dados
-└── style.css, script.js
-🛠 Tecnologias Utilizadas
-PHP 7+
+#### Babel
 
-MySQL
+[Babel](http://babeljs.io/) is a next generation JavaScript compiler. One of the features is the ability to use ES6/ES2015 modules now, even though browsers do not yet support this feature natively.
 
-Bootstrap 5
+```js
+import $ from "jquery";
+```
 
-jQuery
+#### Browserify/Webpack
 
-SCSS
+There are several ways to use [Browserify](http://browserify.org/) and [Webpack](https://webpack.github.io/). For more information on using these tools, please refer to the corresponding project's documention. In the script, including jQuery will usually look like this...
 
-JavaScript
+```js
+var $ = require("jquery");
+```
 
-HTML5 & CSS3
+#### AMD (Asynchronous Module Definition)
 
-🧪 Como Executar Localmente
-Clone o repositório:
+AMD is a module format built for the browser. For more information, we recommend [require.js' documentation](http://requirejs.org/docs/whyamd.html).
 
-bash
-Copiar
-Editar
-git clone https://github.com/seu-usuario/cmtec.git
-Importe o banco mysql2.sql no seu MySQL.
+```js
+define(["jquery"], function($) {
 
-Configure o arquivo Controller/conexao.php com suas credenciais de banco de dados:
+});
+```
 
-php
-Copiar
-Editar
-$conn = new mysqli("localhost", "usuario", "senha", "nome_do_banco");
-Inicie um servidor local (por exemplo, XAMPP) e acesse via navegador:
+### Node
 
-arduino
-Copiar
-Editar
-http://localhost/cmtec/login.html
+To include jQuery in [Node](nodejs.org), first install with npm.
+
+```sh
+npm install jquery
+```
+
+For jQuery to work in Node, a window with a document is required. Since no such window exists natively in Node, one can be mocked by tools such as [jsdom](https://github.com/tmpvar/jsdom). This can be useful for testing purposes.
+
+```js
+require("jsdom").env("", function(err, window) {
+	if (err) {
+		console.error(err);
+		return;
+	}
+
+	var $ = require("jquery")(window);
+});
+```
